@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 import pickle
+import os
+import requests
 from datetime import datetime, timedelta
 from flask_cors import CORS
 
@@ -7,8 +9,42 @@ app = Flask(__name__)
 CORS(app)
 
 
-# Load the pre-trained model
-model = pickle.load(open('model.pkl', 'rb'))
+# Load the pre-trained model.
+# If a MODEL_URL environment variable is provided (recommended for deployment),
+# download the model at startup to a local path and load it from there. This
+# avoids committing a large `model.pkl` into the repository which can exceed
+# serverless bundle size limits.
+def load_model():
+    local_path = os.path.join('/tmp', 'model.pkl') if os.name != 'nt' else 'model.pkl'
+    model_url = os.environ.get('MODEL_URL')
+
+    # If MODEL_URL is set, try to download the model if it's not already present.
+    if model_url:
+        if not os.path.exists(local_path):
+            try:
+                resp = requests.get(model_url, stream=True, timeout=30)
+                resp.raise_for_status()
+                with open(local_path, 'wb') as f:
+                    for chunk in resp.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+            except Exception as e:
+                # If download fails, raise so the app start-up fails loudly in deployment.
+                raise RuntimeError(f"Failed to download model from MODEL_URL: {e}")
+    else:
+        # No MODEL_URL provided; expect model.pkl to exist in the repo root.
+        local_path = 'model.pkl'
+
+    # Load the model from the chosen path
+    try:
+        with open(local_path, 'rb') as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        raise RuntimeError(f"Model file not found at '{local_path}'. Set MODEL_URL or add model.pkl.")
+
+
+# Initialize model
+model = load_model()
 
 # Dictionaries for categorical variables
 airline_dict = {'AirAsia': 0, "Indigo": 1, "GO_FIRST": 2, "SpiceJet": 3, "Air_India": 4, "Vistara": 5}
