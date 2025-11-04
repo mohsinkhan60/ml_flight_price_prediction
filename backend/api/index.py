@@ -4,7 +4,20 @@ from datetime import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS to allow your frontend domain
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://ml-flight-price-prediction-frontend.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:3000"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
 
 # Load the pre-trained model
 model = pickle.load(open('model.pkl', 'rb'))
@@ -30,8 +43,12 @@ def home():
         }
     })
 
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['POST', 'OPTIONS'])
 def predict():
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+    
     data = request.json
     try:
         airline = airline_dict[data['airline']]
