@@ -20,7 +20,15 @@ class_dict = {'Economy': 0, 'Business': 1}
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({'message': 'Flight Price Prediction API', 'status': 'running'})
+    return jsonify({
+        'message': 'Flight Price Prediction API',
+        'status': 'running',
+        'version': '1.0.0',
+        'endpoints': {
+            '/': 'GET - API information',
+            '/predict': 'POST - Predict flight price'
+        }
+    })
 
 @app.route('/predict', methods=['POST'])
 def predict():
