@@ -1,18 +1,18 @@
 // src/FlightPricePredictor.js
 
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
 
 function FlightPricePredictor() {
   const [formData, setFormData] = useState({
-    airline: "",
-    source_city: "",
-    departure_time: "",
-    stops: "",
-    arrival_time: "",
-    destination_city: "",
-    class: "",
-    departure_date: "",
+    airline: '',
+    source_city: '',
+    departure_time: '',
+    stops: '',
+    arrival_time: '',
+    destination_city: '',
+    class: '',
+    departure_date: '',
   });
 
   const [prediction, setPrediction] = useState(null);
@@ -27,28 +27,22 @@ function FlightPricePredictor() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/predict", formData);
+      const response = await axios.post('http://127.0.0.1:5000/predict', formData);
       setPrediction(response.data.prediction);
     } catch (error) {
-      console.error("Error fetching prediction:", error);
+      console.error('Error fetching prediction:', error);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10">
-      <h1 className="text-3xl font-semibold text-blue-700 mb-8">
-        Flight Price Prediction
-      </h1>
-
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg space-y-6"
-      >
+      <h1 className="text-3xl font-semibold text-blue-700 mb-8">Flight Price Prediction</h1>
+      
+      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg space-y-6">
+        
         {/* Airline Field */}
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Airline
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Airline</label>
           <select
             name="airline"
             value={formData.airline}
@@ -67,9 +61,7 @@ function FlightPricePredictor() {
 
         {/* Source City Field */}
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Source City
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Source City</label>
           <select
             name="source_city"
             value={formData.source_city}
@@ -88,9 +80,7 @@ function FlightPricePredictor() {
 
         {/* Departure Time Field */}
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Departure Time
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Departure Time</label>
           <select
             name="departure_time"
             value={formData.departure_time}
@@ -109,9 +99,7 @@ function FlightPricePredictor() {
 
         {/* Stops Field */}
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Stops
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Stops</label>
           <select
             name="stops"
             value={formData.stops}
@@ -127,9 +115,7 @@ function FlightPricePredictor() {
 
         {/* Arrival Time Field */}
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Arrival Time
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Arrival Time</label>
           <select
             name="arrival_time"
             value={formData.arrival_time}
@@ -148,9 +134,7 @@ function FlightPricePredictor() {
 
         {/* Destination City Field */}
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Destination City
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Destination City</label>
           <select
             name="destination_city"
             value={formData.destination_city}
@@ -169,9 +153,7 @@ function FlightPricePredictor() {
 
         {/* Class Field */}
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Class
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Class</label>
           <select
             name="class"
             value={formData.class}
@@ -186,13 +168,11 @@ function FlightPricePredictor() {
 
         {/* Departure Date Field */}
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Departure Date
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Departure Date</label>
           <input
             type="date"
             name="departure_date"
-            min={new Date().toISOString().split("T")[0]}
+            min={new Date().toISOString().split('T')[0]}
             value={formData.departure_date}
             onChange={handleChange}
             className="block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
@@ -209,9 +189,7 @@ function FlightPricePredictor() {
 
       {prediction !== null && (
         <div className="mt-6 p-4 bg-green-100 rounded-lg text-green-700">
-          <h2 className="text-xl font-semibold">
-            Your Flight Price: ₹{prediction}
-          </h2>
+          <h2 className="text-xl font-semibold">Your Flight Price: ₹{prediction}</h2>
         </div>
       )}
     </div>

@@ -5,22 +5,9 @@
       "src": "flight-prediction/package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "dist" }
-    },
-    {
-      "src": "backend/app.py",
-      "use": "@vercel/python"
     }
   ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/app.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/flight-prediction/$1"
-    }
-  ],
+  "routes": [{ "src": "/(.*)", "dest": "/flight-prediction/$1" }],
   "installCommand": "pnpm install --prefix flight-prediction",
   "buildCommand": "pnpm --prefix flight-prediction run build"
 }
