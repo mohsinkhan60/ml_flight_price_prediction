@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import pickle
 from datetime import datetime
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 
@@ -19,8 +20,24 @@ CORS(app, resources={
     }
 })
 
-# Load the pre-trained model
-model = pickle.load(open('model.pkl', 'rb'))
+# Global variable to cache the model
+_model = None
+
+def load_model():
+    """Load the model from pickle file, with caching for serverless"""
+    global _model
+    if _model is None:
+        try:
+            # Get the directory of the current file
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            model_path = os.path.join(current_dir, 'model.pkl')
+            
+            with open(model_path, 'rb') as f:
+                _model = pickle.load(f)
+        except Exception as e:
+            print(f"Error loading model: {e}")
+            raise
+    return _model
 
 # Dictionaries for categorical variables
 airline_dict = {'AirAsia': 0, "Indigo": 1, "GO_FIRST": 2, "SpiceJet": 3, "Air_India": 4, "Vistara": 5}
@@ -49,15 +66,26 @@ def predict():
     if request.method == 'OPTIONS':
         return jsonify({'status': 'ok'}), 200
     
-    data = request.json
     try:
-        airline = airline_dict[data['airline']]
-        source_city = source_dict[data['source_city']]
-        departure_time = departure_dict[data['departure_time']]
-        stops = stops_dict[data['stops']]
-        arrival_time = arrival_dict[data['arrival_time']]
-        destination_city = destination_dict[data['destination_city']]
-        travel_class = class_dict[data['class']]
+        data = request.json
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Load model
+        model = load_model()
+        
+        # Extract and validate data
+        airline = airline_dict.get(data.get('airline'))
+        source_city = source_dict.get(data.get('source_city'))
+        departure_time = departure_dict.get(data.get('departure_time'))
+        stops = stops_dict.get(data.get('stops'))
+        arrival_time = arrival_dict.get(data.get('arrival_time'))
+        destination_city = destination_dict.get(data.get('destination_city'))
+        travel_class = class_dict.get(data.get('class'))
+        
+        # Check if any value is None
+        if None in [airline, source_city, departure_time, stops, arrival_time, destination_city, travel_class]:
+            return jsonify({'error': 'Invalid or missing data in request'}), 400
         
         # Calculate date difference
         departure_date = datetime.strptime(data['departure_date'], '%Y-%m-%d')
@@ -67,13 +95,11 @@ def predict():
         features = [airline, source_city, departure_time, stops, arrival_time, destination_city, travel_class, date_diff]
         prediction = model.predict([features])[0]
 
-        return jsonify({'prediction': round(prediction, 2)})
+        return jsonify({'prediction': round(prediction, 2)}), 200
     except KeyError as e:
-        return jsonify({'error': f'Missing data for: {e}'}), 400
+        return jsonify({'error': f'Missing required field: {str(e)}'}), 400
+    except ValueError as e:
+        return jsonify({'error': f'Invalid data format: {str(e)}'}), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-# Vercel serverless function handler
-def handler(request):
-    with app.request_context(request.environ):
-        return app.full_dispatch_request()
+        print(f"Prediction error: {str(e)}")
+        return jsonify({'error': f'Server error: {str(e)}'}), 500
