@@ -7,20 +7,34 @@ const Button = ({
   variant = "primary", 
   type = "button",
   fullWidth = true,
-  loading = false 
+  loading = false,
+  darkMode = true,
+  icon = null
 }) => {
-  const baseClasses = "py-3 px-6 rounded-full text-base font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0b0b0b]";
+  const baseClasses = "py-3 px-6 rounded-full text-base font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2";
   
   const variants = {
-    primary: `bg-white text-[#0b0b0b] hover:bg-[#ededed] focus:ring-white ${
-      disabled ? "opacity-30 cursor-not-allowed" : ""
-    }`,
-    secondary: `bg-[#0b0b0b] text-[#b9b9b9] border border-[#353535] hover:border-[#505b6c] hover:bg-[#151515] focus:ring-[#505b6c] ${
-      disabled ? "opacity-30 cursor-not-allowed" : ""
-    }`,
-    brand: `bg-[#f36458] text-[#0b0b0b] hover:bg-[#dd0000] focus:ring-[#f36458] ${
-      disabled ? "opacity-30 cursor-not-allowed" : ""
-    }`
+    primary: darkMode
+      ? `bg-white text-[#0b0b0b] hover:bg-[#ededed] focus:ring-white focus:ring-offset-[#0b0b0b] ${
+          disabled ? "opacity-30 cursor-not-allowed" : ""
+        }`
+      : `bg-[#0b0b0b] text-white hover:bg-[#212121] focus:ring-[#0b0b0b] focus:ring-offset-white ${
+          disabled ? "opacity-30 cursor-not-allowed" : ""
+        }`,
+    secondary: darkMode
+      ? `bg-[#0b0b0b] text-[#b9b9b9] border border-[#353535] hover:border-[#505b6c] hover:bg-[#151515] focus:ring-[#505b6c] focus:ring-offset-[#0b0b0b] ${
+          disabled ? "opacity-30 cursor-not-allowed" : ""
+        }`
+      : `bg-white text-[#797979] border-2 border-[#ededed] hover:border-[#0b0b0b] hover:text-[#0b0b0b] focus:ring-[#ededed] focus:ring-offset-white ${
+          disabled ? "opacity-30 cursor-not-allowed" : ""
+        }`,
+    brand: darkMode
+      ? `bg-white text-[#0b0b0b] hover:bg-[#ededed] focus:ring-white focus:ring-offset-[#0b0b0b] ${
+          disabled ? "opacity-30 cursor-not-allowed" : ""
+        }`
+      : `bg-[#0b0b0b] text-white hover:bg-[#212121] focus:ring-[#0b0b0b] focus:ring-offset-white ${
+          disabled ? "opacity-30 cursor-not-allowed" : ""
+        }`
   };
 
   return (
@@ -28,12 +42,12 @@ const Button = ({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={`${baseClasses} ${variants[variant]} ${fullWidth ? "w-full" : ""} flex items-center justify-center`}
+      className={`${baseClasses} ${variants[variant]} ${fullWidth ? "w-full" : ""} flex items-center justify-center gap-2`}
     >
       {loading ? (
         <>
           <svg
-            className="animate-spin -ml-1 mr-3 h-5 w-5"
+            className="animate-spin h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -52,10 +66,20 @@ const Button = ({
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          Processing...
+          <span>Processing...</span>
         </>
       ) : (
-        children
+        <>
+          {icon && (
+            <span className="flex-shrink-0 inline-flex">
+              {React.cloneElement(icon, {
+                color: 'currentColor',
+                className: 'w-5 h-5'
+              })}
+            </span>
+          )}
+          <span>{children}</span>
+        </>
       )}
     </button>
   );

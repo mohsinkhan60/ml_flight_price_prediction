@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Airplane, Moon, Sun1 } from "iconsax-react";
 import StepIndicator from "./components/ui/StepIndicator";
 import Step1Route from "./components/steps/Step1Route";
 import Step2Details from "./components/steps/Step2Details";
@@ -9,6 +10,13 @@ import { STEPS } from "./constants/flightData";
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
+  
+  // Initialize darkMode from localStorage, default to true if not set
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('flightfare-theme');
+    return savedTheme ? savedTheme === 'dark' : true;
+  });
+  
   const [formData, setFormData] = useState({
     airline: "",
     source_city: "",
@@ -64,68 +72,122 @@ function App() {
     setError(null);
   };
 
+  const toggleTheme = () => {
+    setDarkMode((prev) => {
+      const newTheme = !prev;
+      // Save to localStorage
+      localStorage.setItem('flightfare-theme', newTheme ? 'dark' : 'light');
+      return newTheme;
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-[#0b0b0b] flex flex-col items-center py-12 px-4">
-      {/* Header */}
+    <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-[#0b0b0b]' : 'bg-white'}`}>
+      {/* Top Navigation Bar */}
       {!prediction && (
-        <div className="text-center mb-12 max-w-4xl animate-fadeIn">
-          <div className="inline-block mb-4">
-            <span className="text-[#797979] text-xs font-mono uppercase tracking-wide">
-              PRICE PREDICTION
-            </span>
+        <nav className={`fixed top-0 left-0 right-0 z-50 ${darkMode ? 'bg-[#0b0b0b] border-[#353535]' : 'bg-white border-[#ededed]'} border-b`}>
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {/* <div className={`w-10 h-10 rounded-full flex items-center justify-center ${darkMode ? 'bg-white' : 'bg-[#0b0b0b]'}`}> */}
+                <Airplane size={24} variant="Bold" color={!darkMode ? "#0b0b0b" : "#ffffff"} />
+              {/* </div> */}
+              <div>
+                <h1 className={`text-xl font-medium tracking-tight ${darkMode ? 'text-white' : 'text-[#0b0b0b]'}`}>FlightFare AI</h1>
+                {/* <p className="text-[#797979] text-xs font-mono uppercase tracking-wide">Smart Price Prediction</p> */}
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className={`text-sm font-mono ${darkMode ? 'text-[#b9b9b9]' : 'text-[#797979]'}`}>
+                Step {currentStep} of {STEPS.length}
+              </div>
+              <button
+                onClick={toggleTheme}
+                className={`p-2 rounded-lg transition-all ${
+                  darkMode 
+                    ? 'bg-[#212121] hover:bg-[#353535]' 
+                    : 'bg-[#ededed] hover:bg-[#e0e0e0]'
+                }`}
+                aria-label="Toggle theme"
+              >
+                {darkMode ? (
+                  <Sun1 size={20} variant="Bold" color="#ffffff" />
+                ) : (
+                  <Moon size={20} variant="Bold" color="#0b0b0b" />
+                )}
+              </button>
+            </div>
           </div>
-          <h1 className="text-5xl md:text-7xl font-normal text-white leading-tight tracking-tight">
-            Find Your Best Flight Price
-          </h1>
-          <p className="text-[#b9b9b9] text-lg mt-6 leading-relaxed">
-            Answer a few simple questions to get accurate price predictions
-          </p>
-        </div>
+        </nav>
       )}
 
-      {/* Step Indicator */}
-      {!prediction && <StepIndicator currentStep={currentStep} steps={STEPS} />}
+      {/* Main Content Area - Stepper on Top */}
+      <main className="flex-1 flex flex-col pt-20">
+        {!prediction ? (
+          <div className="flex-1 flex flex-col">
+            {/* Top - Step Indicator */}
+            <div className={`py-8 pt-20 px-6 border-b-0 ${
+              darkMode ? 'bg-[#0b0b0b] border-[#353535]' : 'bg-[#fafafa] border-[#ededed]'
+            }`}>
+              <StepIndicator currentStep={currentStep} steps={STEPS} darkMode={darkMode} horizontal={true} />
+            </div>
 
-      {/* Form Card */}
-      {!prediction && (
-        <div className="bg-[#212121] rounded-xl p-6 md:p-8 w-full max-w-2xl border border-[#353535] shadow-2xl">
-          {currentStep === 1 && (
-            <Step1Route
+            {/* Bottom - Step Content */}
+            <div className="flex-1 flex items-center justify-center px-6 pb-12 overflow-y-auto">
+              <div className="w-full max-w-5xl animate-fadeIn">
+                {currentStep === 1 && (
+                  <Step1Route
+                    formData={formData}
+                    onChange={handleChange}
+                    onNext={() => setCurrentStep(2)}
+                    darkMode={darkMode}
+                  />
+                )}
+
+                {currentStep === 2 && (
+                  <Step2Details
+                    formData={formData}
+                    onChange={handleChange}
+                    onNext={() => setCurrentStep(3)}
+                    onBack={() => setCurrentStep(1)}
+                    darkMode={darkMode}
+                  />
+                )}
+
+                {currentStep === 3 && (
+                  <Step3Date
+                    formData={formData}
+                    onChange={handleChange}
+                    onSubmit={handleSubmit}
+                    onBack={() => setCurrentStep(2)}
+                    loading={loading}
+                    darkMode={darkMode}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto">
+            <PredictionResult
+              prediction={prediction}
+              onReset={resetForm}
               formData={formData}
-              onChange={handleChange}
-              onNext={() => setCurrentStep(2)}
+              darkMode={darkMode}
             />
-          )}
+          </div>
+        )}
+      </main>
 
-          {currentStep === 2 && (
-            <Step2Details
-              formData={formData}
-              onChange={handleChange}
-              onNext={() => setCurrentStep(3)}
-              onBack={() => setCurrentStep(1)}
-            />
-          )}
-
-          {currentStep === 3 && (
-            <Step3Date
-              formData={formData}
-              onChange={handleChange}
-              onSubmit={handleSubmit}
-              onBack={() => setCurrentStep(2)}
-              loading={loading}
-            />
-          )}
-        </div>
-      )}
-
-      {/* Prediction Result */}
-      {prediction !== null && (
-        <PredictionResult
-          prediction={prediction}
-          onReset={resetForm}
-          formData={formData}
-        />
-      )}
+      {/* Footer */}
+      {/* {!prediction && (
+        <footer className={`${darkMode ? 'bg-[#0b0b0b] border-[#353535]' : 'bg-white border-[#ededed]'} border-t py-4`}>
+          <div className="max-w-7xl mx-auto px-6">
+            <p className="text-[#797979] text-xs text-center font-mono">
+              Powered by Machine Learning • Historical Data Analysis
+            </p>
+          </div>
+        </footer>
+      )} */}
     </div>
   );
 }
