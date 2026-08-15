@@ -6,17 +6,13 @@ import os
 
 app = Flask(__name__)
 
-# Configure CORS to allow your frontend domain
+# Configure CORS - Allow all origins for flexibility (you can restrict this in production)
 CORS(app, resources={
     r"/*": {
-        "origins": [
-            "https://ml-flight-price-prediction-frontend.vercel.app",
-            "http://localhost:5173",
-            "http://localhost:3000"
-        ],
+        "origins": "*",  # Allow all origins - recommended for development/testing
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True
+        "allow_headers": ["Content-Type", "Authorization", "Accept"],
+        "supports_credentials": False
     }
 })
 
