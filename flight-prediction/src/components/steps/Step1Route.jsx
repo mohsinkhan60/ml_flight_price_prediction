@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Send2, Receive, ArrowRight } from "iconsax-react";
 import OptionCard from "../ui/OptionCard";
 import Button from "../ui/Button";
@@ -6,6 +6,20 @@ import { CITIES } from "../../constants/flightData";
 
 const Step1Route = ({ formData, onChange, onNext, darkMode = true }) => {
   const canProceed = formData.source_city && formData.destination_city;
+  const destinationRef = useRef(null);
+
+  // Scroll to destination section when source city is selected
+  useEffect(() => {
+    if (formData.source_city && destinationRef.current) {
+      setTimeout(() => {
+        destinationRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      }, 300);
+    }
+  }, [formData.source_city]);
 
   return (
     <div className="space-y-12 animate-slideInLeft">
@@ -55,7 +69,7 @@ const Step1Route = ({ formData, onChange, onNext, darkMode = true }) => {
 
         {/* Destination City */}
         {formData.source_city && (
-          <div className="animate-fadeIn">
+          <div className="animate-fadeIn" ref={destinationRef}>
             <label className={`flex items-center gap-3 text-xl mb-6 font-medium ${
               darkMode ? 'text-white' : 'text-[#0b0b0b]'
             }`}>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Airplane, Moon, Sun1 } from "iconsax-react";
 import StepIndicator from "./components/ui/StepIndicator";
 import Step1Route from "./components/steps/Step1Route";

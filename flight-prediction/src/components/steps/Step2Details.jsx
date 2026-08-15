@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Airplane, Medal, Repeat, Clock, ArrowRight, ArrowLeft } from "iconsax-react";
 import OptionCard from "../ui/OptionCard";
 import Button from "../ui/Button";
@@ -11,6 +11,47 @@ const Step2Details = ({ formData, onChange, onNext, onBack, darkMode = true }) =
     formData.stops &&
     formData.departure_time &&
     formData.arrival_time;
+
+  const classRef = useRef(null);
+  const stopsRef = useRef(null);
+  const departureRef = useRef(null);
+  const arrivalRef = useRef(null);
+
+  // Scroll when airline is selected
+  useEffect(() => {
+    if (formData.airline && classRef.current) {
+      setTimeout(() => {
+        classRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [formData.airline]);
+
+  // Scroll when class is selected
+  useEffect(() => {
+    if (formData.class && stopsRef.current) {
+      setTimeout(() => {
+        stopsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [formData.class]);
+
+  // Scroll when stops is selected
+  useEffect(() => {
+    if (formData.stops && departureRef.current) {
+      setTimeout(() => {
+        departureRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [formData.stops]);
+
+  // Scroll when departure time is selected
+  useEffect(() => {
+    if (formData.departure_time && arrivalRef.current) {
+      setTimeout(() => {
+        arrivalRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [formData.departure_time]);
 
   return (
     <div className="space-y-12 animate-slideInRight">
@@ -60,7 +101,7 @@ const Step2Details = ({ formData, onChange, onNext, onBack, darkMode = true }) =
 
         {/* Class */}
         {formData.airline && (
-          <div className="animate-fadeIn">
+          <div className="animate-fadeIn" ref={classRef}>
             <label className={`flex items-center gap-3 text-xl mb-6 font-medium ${
               darkMode ? 'text-white' : 'text-[#0b0b0b]'
             }`}>
@@ -87,7 +128,7 @@ const Step2Details = ({ formData, onChange, onNext, onBack, darkMode = true }) =
 
         {/* Stops */}
         {formData.class && (
-          <div className="animate-fadeIn">
+          <div className="animate-fadeIn" ref={stopsRef}>
             <label className={`flex items-center gap-3 text-xl mb-6 font-medium ${
               darkMode ? 'text-white' : 'text-[#0b0b0b]'
             }`}>
@@ -114,7 +155,7 @@ const Step2Details = ({ formData, onChange, onNext, onBack, darkMode = true }) =
 
         {/* Departure Time */}
         {formData.stops && (
-          <div className="animate-fadeIn">
+          <div className="animate-fadeIn" ref={departureRef}>
             <label className={`flex items-center gap-3 text-xl mb-6 font-medium ${
               darkMode ? 'text-white' : 'text-[#0b0b0b]'
             }`}>
@@ -142,7 +183,7 @@ const Step2Details = ({ formData, onChange, onNext, onBack, darkMode = true }) =
 
         {/* Arrival Time */}
         {formData.departure_time && (
-          <div className="animate-fadeIn">
+          <div className="animate-fadeIn" ref={arrivalRef}>
             <label className={`flex items-center gap-3 text-xl mb-6 font-medium ${
               darkMode ? 'text-white' : 'text-[#0b0b0b]'
             }`}>
